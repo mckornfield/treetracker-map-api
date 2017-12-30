@@ -22,7 +22,7 @@ app.get('/trees', function(req, res){
     
     let query = {      
         
-        text: 'SELECT * FROM datapoints'
+        text: 'SELECT * FROM trees'
       }
       
       pool.query(query)
@@ -35,10 +35,6 @@ app.get('/trees', function(req, res){
 
 });
   
-app.get('*',function(req, res){    
-    res.sendFile(path.join(__dirname,'index.html'));
-});
-
 app.listen(port,()=>{
     console.log('listening on port ' + port);
 });
