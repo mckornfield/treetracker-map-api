@@ -13,28 +13,38 @@ app.use(bodyParser.json()); // parse application/json
 app.set('view engine','html');
 
 const pool = new Pool({
-    
-    connectionString: conn.connectionString
-  });
+
+  connectionString: conn.connectionString
+});
 
 
 app.get('/trees', function(req, res){   
-    
-    let query = {      
-        
-        text: 'SELECT * FROM trees'
-      }
-      
-      pool.query(query)
-      .then(function(data){
-          res.status(200).json({              
-              data: data.rows
-          })
+  console.log(req);
+
+  let sql = "SELECT 'point' AS type, trees.* FROM trees";
+  let query = { 
+    text: sql
+  }
+
+  if (req.query['zoom']) {
+    let zoom = req.query['zoom'];
+    let sql = "SELECT 'cluster' AS type, ST_AsGeoJSON(ST_Centroid(clustered_locations)) centroid, ST_AsGeoJSON(ST_MinimumBoundingCircle(clustered_locations)) circle, ST_NumGeometries(clustered_locations) count FROM ( SELECT unnest(ST_ClusterWithin(estimated_geometric_location, $1)) clustered_locations from trees ) clusters";
+    query = {
+      text : sql,
+      values : [.01]
+    }
+  }
+
+  pool.query(query)
+    .then(function(data){
+      res.status(200).json({              
+        data: data.rows
       })
-      .catch(e => console.error(e.stack));
+    })
+  .catch(e => console.error(e.stack));
 
 });
-  
+
 app.listen(port,()=>{
-    console.log('listening on port ' + port);
+  console.log('listening on port ' + port);
 });
