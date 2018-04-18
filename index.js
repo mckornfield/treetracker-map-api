@@ -21,14 +21,14 @@ const pool = new Pool({
 app.get('/trees', function(req, res){   
   console.log(req);
 
-  let sql = "SELECT 'point' AS type, trees.* FROM trees";
+  let sql = "SELECT 'point' AS type, trees.* FROM trees WHERE active = true";
   let query = { 
     text: sql
   }
 
   if (req.query['zoom'] < 14) {
     let zoom = req.query['zoom'];
-    let sql = "SELECT 'cluster' AS type, ST_AsGeoJSON(ST_Centroid(clustered_locations)) centroid, ST_AsGeoJSON(ST_MinimumBoundingCircle(clustered_locations)) circle, ST_NumGeometries(clustered_locations) count FROM ( SELECT unnest(ST_ClusterWithin(estimated_geometric_location, $1)) clustered_locations from trees ) clusters";
+    let sql = "SELECT 'cluster' AS type, ST_AsGeoJSON(ST_Centroid(clustered_locations)) centroid, ST_AsGeoJSON(ST_MinimumBoundingCircle(clustered_locations)) circle, ST_NumGeometries(clustered_locations) count FROM ( SELECT unnest(ST_ClusterWithin(estimated_geometric_location, $1)) clustered_locations FROM trees WHERE active = true) clusters";
     query = {
       text : sql,
       values : [.01]
