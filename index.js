@@ -5,7 +5,7 @@ var pg = require('pg');
 const { Pool, Client } = require('pg');
 var path = require('path');
 var app = express();
-var port = process.env.PORT || 3000;
+var port = process.env.NODE_PORT || 3000;
 var conn = require('./config');
 
 app.use(bodyParser.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
