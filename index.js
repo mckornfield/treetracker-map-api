@@ -21,9 +21,14 @@ app.get('/trees', function (req, res) {
   console.log(req);
 
   let token = req.query['token'];
+  let organization = req.query['organization'];
   let join = '';
+  let joinCriteria = '';
   if (token) {
     join = "inner join certificates on trees.certificate_id = certificates.id AND certificates.token = '" + token + "'";
+  } else if(organization) {
+    join = ", certificates, donors, organizations";
+    joinCriteria = "AND trees.certificate_id = certificates.id and certificates.donor_id = donors.id and donors.organization_id = organizations.id AND organizations.id = " + organization;
   }
 
   let bounds = req.query['bounds'];
@@ -35,7 +40,7 @@ app.get('/trees', function (req, res) {
   let clusterRadius = parseFloat(req.query['clusterRadius']);
   var sql, query
   if (clusterRadius == 0.001) {
-    sql = "SELECT 'point' AS type, trees.* FROM trees " + join + " WHERE active = true " + boundingBoxQuery;
+    sql = "SELECT 'point' AS type, trees.* FROM trees " + join + " WHERE active = true " + boundingBoxQuery + joinCriteria;
     query = {
       text: sql
     }
@@ -48,7 +53,7 @@ app.get('/trees', function (req, res) {
              FROM   ( 
                         SELECT Unnest(St_clusterwithin(estimated_geometric_location, $1)) clustered_locations
                         FROM   trees ` + join + ` 
-                        WHERE  active = true ` + boundingBoxQuery + ` ) clusters`;
+                        WHERE  active = true ` + boundingBoxQuery + joinCriteria + ` ) clusters`;
     query = {
       text: sql,
       values: [clusterRadius]
