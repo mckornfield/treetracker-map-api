@@ -38,8 +38,9 @@ app.get('/trees', function (req, res) {
   }
 
   let clusterRadius = parseFloat(req.query['clusterRadius']);
+  console.log(clusterRadius);
   var sql, query
-  if (clusterRadius == 0.001) {
+  if (clusterRadius == 0) {
     sql = "SELECT 'point' AS type, trees.* FROM trees " + join + " WHERE active = true " + boundingBoxQuery + joinCriteria;
     query = {
       text: sql
