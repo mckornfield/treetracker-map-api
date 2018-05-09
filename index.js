@@ -40,7 +40,6 @@ app.get('/trees', function (req, res) {
   let clusterRadius = parseFloat(req.query['clusterRadius']);
   console.log(clusterRadius);
   var sql, query
-  if (clusterRadius == 0 || clusterRadius == 0.001) {
   if (clusterRadius <= 0.001) {
     sql = "SELECT 'point' AS type, trees.*, users.first_name as first_name, users.last_name as last_name, users.image_url as user_image_url FROM trees INNER JOIN users ON users.id = trees.user_id " + join + " WHERE active = true " + boundingBoxQuery + joinCriteria;
     query = {
