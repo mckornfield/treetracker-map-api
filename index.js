@@ -25,10 +25,10 @@ app.get('/trees', function (req, res) {
   let join = '';
   let joinCriteria = '';
   if (token) {
-    join = "inner join certificates on trees.certificate_id = certificates.id AND certificates.token = '" + token + "'";
+    join = "INNER JOIN certificates ON trees.certificate_id = certificates.id AND certificates.token = '" + token + "'";
   } else if(organization) {
     join = ", certificates, donors, organizations";
-    joinCriteria = "AND trees.certificate_id = certificates.id and certificates.donor_id = donors.id and donors.organization_id = organizations.id AND organizations.id = " + organization;
+    joinCriteria = "AND trees.certificate_id = certificates.id AND certificates.donor_id = donors.id AND donors.organization_id = organizations.id AND organizations.id = " + organization;
   }
 
   let bounds = req.query['bounds'];
@@ -40,8 +40,8 @@ app.get('/trees', function (req, res) {
   let clusterRadius = parseFloat(req.query['clusterRadius']);
   console.log(clusterRadius);
   var sql, query
-  if (clusterRadius == 0) {
-    sql = "SELECT 'point' AS type, trees.* FROM trees " + join + " WHERE active = true " + boundingBoxQuery + joinCriteria;
+  if (clusterRadius == 0 || clusterRadius == 0.001) {
+    sql = "SELECT 'point' AS type, trees.*, users.first_name as first_name, users.last_name as last_name, users.image_url as user_image_url FROM trees INNER JOIN users ON users.id = trees.user_id " + join + " WHERE active = true " + boundingBoxQuery + joinCriteria;
     query = {
       text: sql
     }
